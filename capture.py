@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python3
 # -*-coding: utf-8 -*-
 #
@@ -9,7 +10,7 @@ import time
 import argparse
 import numpy as np
 
-import Tools.imgfunc as IMG
+import Tools.imgfunc as I
 import Tools.func as F
 
 
@@ -29,7 +30,7 @@ def command():
 class videoCap(object):
 
     def __init__(self, h, w, ch=1, cap_num=6, interval=0.5):
-        self.cap = [IMG.white(h, w, ch) for i in range(cap_num)]
+        self.cap = [I.blank.white(h, w, ch) for i in range(cap_num)]
         self.ch = ch
         self.interval = interval
         self.st = time.time()
@@ -51,17 +52,13 @@ class videoCap(object):
         self.st = time.time()
 
     def viewAll(self, resize=0.5):
-        return IMG.resize(np.hstack(self.cap), resize)
+        return I.cnv.resize(np.hstack(self.cap), resize)
 
     def view4(self, resize=0.5):
-        img = np.vstack([np.hstack(self.cap[0:2]), np.hstack(self.cap[2:4])])
-        return IMG.resize(img, resize)
+        return I.cnv.resize(I.cnv.vhstack(self.cap[0:4]), resize)
 
     def write4(self, out_path, resize=0.5):
-        name = F.getFilePath(out_path, 'cap-' +
-                             str(self.num).zfill(5), '.jpg')
-        self.num += 1
-        cv2.imwrite(name, self.view4(resize))
+        return I.io.write(out_path, 'cap-', self.view4(resize))
 
 
 def main(args):
@@ -72,13 +69,15 @@ def main(args):
         cap.set(4, 200)
         cap.set(5, 5)
         h, w = (144, 176)
+    else:
+        h, w = (640, 480)
 
     video = videoCap(h, w, 1, 6)
     while(True):
         # Capture frame-by-frame
         ret, frame = cap.read()
         # if ret:
-        #     cv2.imshow('frame', IMG.resize(frame, args.img_rate))
+        #     cv2.imshow('frame', I.resize(frame, args.img_rate))
         # else:
         #     time.sleep(1)
         if not ret:
