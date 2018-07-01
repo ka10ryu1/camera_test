@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 # -*-coding: utf-8 -*-
 #
@@ -24,6 +23,10 @@ def command():
                         help='表示する画像サイズの倍率 [default: 1]')
     parser.add_argument('--lower', action='store_true',
                         help='select timeoutが発生する場合に画質を落とす')
+    parser.add_argument('--viewer', action='store_true',
+                        help='imshowを使用するモード')
+    parser.add_argument('--debug', action='store_true',
+                        help='debugモード')
     return parser.parse_args()
 
 
@@ -55,7 +58,7 @@ class videoCap(object):
         return I.cnv.resize(np.hstack(self.cap), resize)
 
     def view4(self, resize=0.5):
-        return I.cnv.resize(I.cnv.vhstack(self.cap[0:4]), resize)
+        return I.cnv.resize(I.cnv.vhstack(self.cap[0:4], (2, 2)), resize)
 
     def write4(self, out_path, resize=0.5):
         return I.io.write(out_path, 'cap-', self.view4(resize))
@@ -76,27 +79,31 @@ def main(args):
     while(True):
         # Capture frame-by-frame
         ret, frame = cap.read()
-        # if ret:
-        #     cv2.imshow('frame', I.resize(frame, args.img_rate))
-        # else:
-        #     time.sleep(1)
         if not ret:
-            time.sleep(1)
+            time.sleep(2)
+
+        if args.viewer:
+            cv2.imshow('frame', I.cnv.resize(frame, args.img_rate))
 
         if video.check():
             video.update(frame)
 
         key = cv2.waitKey(20) & 0xff
 
+        if args.debug:
+            print(key)
+            cv2.imshow('all', video.viewAll(0.5))
+            cv2.waitKey(20)
+
         # Display the resulting frame
         if key == 27:  # Esc Key
             print('exit!')
             break
         elif key == 13:  # Enter Key
-            # cv2.imshow('cap', video.view4(0.5))
-            # cv2.imshow('all', video.viewAll(0.5))
             video.write4(args.out_path)
-            cv2.waitKey(20)
+            if args.viewer:
+                cv2.imshow('cap', video.view4(0.5))
+                cv2.waitKey(20)
 
     # When everything done, release the capture
     cap.release()
