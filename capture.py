@@ -59,7 +59,7 @@ def main(args):
         key = cv2.waitKey(20) & 0xff
 
         if args.debug:
-            print(key)
+            print('key: {}, frame: {}'.format(key, frame.shape))
             cv2.imshow('all', video.viewAll(0.5))
             cv2.waitKey(20)
 
@@ -67,7 +67,7 @@ def main(args):
         if key == 27:  # Esc Key
             print('exit!')
             break
-        elif key == 13:  # Enter Key
+        elif key == 13 or key == 10:  # Enter Key
             video.write4(args.out_path)
             if args.viewer:
                 cv2.imshow('cap', video.view4(0.5))
