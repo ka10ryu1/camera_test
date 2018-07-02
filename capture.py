@@ -11,7 +11,6 @@ logging.basicConfig(format='%(message)s')
 logging.getLogger('Tools').setLevel(level=level)
 
 import cv2
-import time
 import argparse
 
 import Tools.imgfunc as I
@@ -54,7 +53,7 @@ def main(args):
         # Capture frame-by-frame
         ret, frame = cap.read()
         if ret is False:
-            time.sleep(2)
+            cv2.waitKey(100)
             continue
 
         if args.viewer:
@@ -75,7 +74,7 @@ def main(args):
             print('exit!')
             break
         elif key == 13 or key == 10:  # Enter Key
-            video.write4(args.out_path)
+            print('capture:', video.write4(args.out_path))
             if args.viewer:
                 cv2.imshow('cap', video.view4(0.5))
                 cv2.waitKey(20)
