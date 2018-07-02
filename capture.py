@@ -4,6 +4,12 @@
 help = 'Webカメラから画像を取得する'
 #
 
+import logging
+# basicConfig()は、 debug()やinfo()を最初に呼び出す"前"に呼び出すこと
+level = logging.DEBUG
+logging.basicConfig(format='%(message)s')
+logging.getLogger('Tools').setLevel(level=level)
+
 import cv2
 import time
 import argparse
