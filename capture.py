@@ -6,7 +6,7 @@ help = 'Webカメラから画像を取得する'
 
 import logging
 # basicConfig()は、 debug()やinfo()を最初に呼び出す"前"に呼び出すこと
-level = logging.DEBUG
+level = logging.INFO
 logging.basicConfig(format='%(message)s')
 logging.getLogger('Tools').setLevel(level=level)
 
@@ -45,16 +45,17 @@ def main(args):
         cap.set(3, 200)
         cap.set(4, 200)
         cap.set(5, 5)
-        h, w = (144, 176)
+        size = (144, 176, 1)
     else:
-        h, w = (640, 480)
+        size = (480, 640, 1)
 
-    video = videoCap(h, w, 1, 6)
+    video = videoCap(size, 6)
     while(True):
         # Capture frame-by-frame
         ret, frame = cap.read()
-        if not ret:
+        if ret is False:
             time.sleep(2)
+            continue
 
         if args.viewer:
             cv2.imshow('frame', I.cnv.resize(frame, args.img_rate))

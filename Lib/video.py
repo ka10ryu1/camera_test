@@ -16,11 +16,16 @@ class videoCap(object):
     USBカメラの処理をクラス化したもの
     """
 
-    def __init__(self, h, w, ch=1, cap_num=6, interval=0.5):
+    def __init__(self, size, cap_num=6, interval=0.5):
+
+        if len(size) != 3:
+            size = (480, 640, 1)
+
         # 表示・保存用画像の格納先を確保
-        self.cap = [I.blank.white(h, w, ch) for i in range(cap_num)]
+        self.cap = [I.blank.white(size[0], size[1], size[2])
+                    for i in range(cap_num)]
         # 保存する画像のチャンネル数
-        self.ch = ch
+        self.ch = size[2]
         # インターバル撮影する間隔 [s]
         self.interval = interval
         # タイマー起動
