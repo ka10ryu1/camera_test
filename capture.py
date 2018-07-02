@@ -7,10 +7,10 @@ help = 'Webカメラから画像を取得する'
 import cv2
 import time
 import argparse
-import numpy as np
 
 import Tools.imgfunc as I
 import Tools.func as F
+from Lib.video import videoCap
 
 
 def command():
@@ -27,41 +27,9 @@ def command():
                         help='imshowを使用するモード')
     parser.add_argument('--debug', action='store_true',
                         help='debugモード')
-    return parser.parse_args()
-
-
-class videoCap(object):
-
-    def __init__(self, h, w, ch=1, cap_num=6, interval=0.5):
-        self.cap = [I.blank.white(h, w, ch) for i in range(cap_num)]
-        self.ch = ch
-        self.interval = interval
-        self.st = time.time()
-        self.num = 0
-
-    def check(self):
-        tm = time.time() - self.st
-        if tm > self.interval:
-            return True
-        else:
-            return False
-
-    def update(self, img):
-        if self.ch == 1:
-            img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-
-        self.cap.pop(0)
-        self.cap.append(img)
-        self.st = time.time()
-
-    def viewAll(self, resize=0.5):
-        return I.cnv.resize(np.hstack(self.cap), resize)
-
-    def view4(self, resize=0.5):
-        return I.cnv.resize(I.cnv.vhstack(self.cap[0:4], (2, 2)), resize)
-
-    def write4(self, out_path, resize=0.5):
-        return I.io.write(out_path, 'cap-', self.view4(resize))
+    args = parser.parse_args()
+    F.argsPrint(args)
+    return args
 
 
 def main(args):
@@ -112,11 +80,7 @@ def main(args):
 
 if __name__ == '__main__':
 
-    args = command()
-    F.argsPrint(args)
-
     print('Key bindings')
     print('[Esc] Exit')
     print('[Ent] Capture')
-
-    main(args)
+    main(command())
