@@ -22,8 +22,8 @@ def command():
     parser = argparse.ArgumentParser(description=help)
     parser.add_argument('-c', '--channel', type=int, default=0,
                         help='使用するWebカメラのチャンネル [default: 0]')
-    parser.add_argument('-o', '--out_path', default='./capture/',
-                        help='画像の保存先 (default: ./capture/)')
+    parser.add_argument('-o', '--out_path', default='./data/',
+                        help='画像の保存先 (default: ./data/)')
     parser.add_argument('-i', '--interval_time', type=float, default=0.5,
                         help='インターバル撮影の間隔 [default: 0.5]')
     parser.add_argument('-s', '--stock_num', type=int, default=6,
