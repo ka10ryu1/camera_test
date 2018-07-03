@@ -26,6 +26,8 @@ def command():
                         help='画像の保存先 (default: ./capture/)')
     parser.add_argument('-i', '--interval_time', type=float, default=0.5,
                         help='インターバル撮影の間隔 [default: 0.5]')
+    parser.add_argument('-s', '--stock_num', type=int, default=6,
+                        help='インターバル撮影の画像保持数 [default: 6]')
     parser.add_argument('--lower', action='store_true',
                         help='select timeoutが発生する場合に画質を落とす')
     parser.add_argument('--debug', action='store_true',
@@ -36,7 +38,8 @@ def command():
 
 
 def main(args):
-    cap = videoCap(args.channel, 1, args.lower, 6, args.interval_time)
+    cap = videoCap(args.channel, 1, args.lower,
+                   args.stock_num, args.interval_time)
     while(True):
         # カメラ画像の取得
         if cap.read() is False:
@@ -44,11 +47,11 @@ def main(args):
             time.sleep(2)
             continue
 
-        # キー入力の取得
+        # 画面の表示とキー入力の取得
+        cv2.imshow('all', cap.viewAll())
         key = cv2.waitKey(20) & 0xff
         if args.debug:
             print('key: {}, frame: {}'.format(key, cap.frame_shape))
-            cv2.imshow('all', cap.viewAll())
 
         # キーに応じて制御
         if key == 27:  # Esc Key

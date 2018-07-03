@@ -100,9 +100,9 @@ class videoCap(object):
         [out] 現在のフレームと全インターバル画像を連結したもの
         """
 
-        sub_img = I.cnv.resize(I.cnv.vhstack(self._data, (2, 3)), resize)
+        sub_img = I.cnv.resize(I.cnv.vhstack(self._data, (2, -1)), 0.5)
         sub_img = cv2.cvtColor(sub_img, cv2.COLOR_GRAY2RGB)
-        return np.hstack([self._frame, sub_img])
+        return I.cnv.resize(np.hstack([self._frame, sub_img]), resize)
 
     def view4(self, resize=0.5):
         """
