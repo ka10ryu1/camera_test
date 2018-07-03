@@ -24,10 +24,10 @@ def command():
                         help='使用するWebカメラのチャンネル [default: 0]')
     parser.add_argument('-o', '--out_path', default='./data/',
                         help='画像の保存先 (default: ./data/)')
-    parser.add_argument('-i', '--interval_time', type=float, default=0.5,
-                        help='インターバル撮影の間隔 [default: 0.5]')
-    parser.add_argument('-s', '--stock_num', type=int, default=6,
-                        help='インターバル撮影の画像保持数 [default: 6]')
+    parser.add_argument('-i', '--interval_time', type=float, default=0.25,
+                        help='インターバル撮影の間隔 [default: 0.25]')
+    parser.add_argument('-s', '--stock_num', type=int, default=10,
+                        help='インターバル撮影の画像保持数 [default: 10]')
     parser.add_argument('--lower', action='store_true',
                         help='select timeoutが発生する場合に画質を落とす')
     parser.add_argument('--debug', action='store_true',
