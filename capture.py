@@ -11,6 +11,7 @@ logging.basicConfig(format='%(message)s')
 logging.getLogger('Tools').setLevel(level=level)
 
 import cv2
+import time
 import argparse
 
 import Tools.func as F
@@ -39,7 +40,8 @@ def main(args):
     while(True):
         # カメラ画像の取得
         if cap.read() is False:
-            cv2.waitKey(100)
+            print('camera read false ...')
+            time.sleep(2)
             continue
 
         # キー入力の取得
