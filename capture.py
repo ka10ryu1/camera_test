@@ -13,23 +13,20 @@ logging.getLogger('Tools').setLevel(level=level)
 import cv2
 import argparse
 
-import Tools.imgfunc as I
 import Tools.func as F
 from Lib.video import videoCap
 
 
 def command():
     parser = argparse.ArgumentParser(description=help)
-    parser.add_argument('--channel', '-c', type=int, default=0,
+    parser.add_argument('-c', '--channel', type=int, default=0,
                         help='使用するWebカメラのチャンネル [default: 0]')
     parser.add_argument('-o', '--out_path', default='./capture/',
                         help='画像の保存先 (default: ./capture/)')
-    parser.add_argument('--img_rate', '-r', type=float, default=1,
-                        help='表示する画像サイズの倍率 [default: 1]')
+    parser.add_argument('-i', '--interval_time', type=float, default=0.5,
+                        help='インターバル撮影の間隔 [default: 0.5]')
     parser.add_argument('--lower', action='store_true',
                         help='select timeoutが発生する場合に画質を落とす')
-    parser.add_argument('--viewer', action='store_true',
-                        help='imshowを使用するモード')
     parser.add_argument('--debug', action='store_true',
                         help='debugモード')
     args = parser.parse_args()
@@ -38,48 +35,29 @@ def command():
 
 
 def main(args):
-    cap = cv2.VideoCapture(args.channel)
-
-    if args.lower:
-        cap.set(3, 200)
-        cap.set(4, 200)
-        cap.set(5, 5)
-        size = (144, 176, 1)
-    else:
-        size = (480, 640, 1)
-
-    video = videoCap(size, 6)
+    cap = videoCap(args.channel, 1, args.lower, 6, args.interval_time)
     while(True):
-        # Capture frame-by-frame
-        ret, frame = cap.read()
-        if ret is False:
+        # カメラ画像の取得
+        if cap.read() is False:
             cv2.waitKey(100)
             continue
 
-        if args.viewer:
-            cv2.imshow('frame', I.cnv.resize(frame, args.img_rate))
-
-        if video.check():
-            video.update(frame)
-
+        # キー入力の取得
         key = cv2.waitKey(20) & 0xff
-
         if args.debug:
-            print('key: {}, frame: {}'.format(key, frame.shape))
-            cv2.imshow('all', video.viewAll(0.5))
-            cv2.waitKey(20)
+            print('key: {}, frame: {}'.format(key, cap.frame_shape))
+            cv2.imshow('all', cap.viewAll())
 
-        # Display the resulting frame
+        # キーに応じて制御
         if key == 27:  # Esc Key
             print('exit!')
             break
         elif key == 13 or key == 10:  # Enter Key
-            print('capture:', video.write4(args.out_path))
-            if args.viewer:
-                cv2.imshow('cap', video.view4(0.5))
-                cv2.waitKey(20)
+            print('capture:', cap.write4(args.out_path))
+            if args.debug:
+                cv2.imshow('cap', cap.view4())
 
-    # When everything done, release the capture
+    # 終了処理
     cap.release()
     cv2.destroyAllWindows()
 
