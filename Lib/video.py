@@ -27,19 +27,20 @@ class videoCap(object):
             self.size = (480, 640, img_ch)
 
         # 表示・保存用画像の格納先を確保
-        self._frame = I.blank.black(self.size[0], self.size[1], self.size[2])
-        self._data = [I.blank.black(self.size[0], self.size[1], self.size[2])
-                      for i in range(cap_num)]
+        self._frame = I.blank.black(self.size)
+        self._data = [I.blank.black(self.size) for i in range(cap_num)]
         # 保存する画像のチャンネル数
         self.ch = self.size[2]
         # キャプチャ画像のサイズ情報
         self.frame_shape = self._frame.shape
         # インターバル撮影する間隔 [s]
         self.interval = interval
-        # タイマー起動
-        self._start = time.time()
         # 保存用の連番
         self._num = 0
+        # 最後に書き込んだ時間
+        self._write_time = 0
+        # タイマー起動
+        self._start = time.time()
 
     def read(self):
         """
@@ -93,6 +94,22 @@ class videoCap(object):
         self._data.append(img)
         self._start = time.time()
 
+    # フレーム差分の計算
+    def frame_sub(self, img1, img2, img3, th):
+        # フレームの絶対差分
+        diff1 = cv2.absdiff(img1, img2)
+        diff2 = cv2.absdiff(img2, img3)
+
+        # 2つの差分画像の論理積
+        diff = cv2.bitwise_and(diff1, diff2)
+
+        # 二値化処理
+        diff[diff < th] = 0
+        diff[diff >= th] = 255
+
+        # メディアンフィルタ処理（ゴマ塩ノイズ除去）
+        return cv2.medianBlur(diff, 5)
+
     def viewAll(self, resize=0.5):
         """
         インターバル画像をすべて表示
@@ -102,6 +119,17 @@ class videoCap(object):
 
         sub_img = I.cnv.resize(I.cnv.vhstack(self._data, (2, -1)), 0.5)
         sub_img = cv2.cvtColor(sub_img, cv2.COLOR_GRAY2RGB)
+
+        wt = time.time() - self._write_time
+        if wt > 10:
+            moment = cv2.countNonZero(
+                self.frame_sub(
+                    self._data[0], self._data[1], self._data[2], th=10)
+            )
+
+            if moment > 5000:
+                print('DETECT', moment)
+
         return I.cnv.resize(np.hstack([self._frame, sub_img]), resize)
 
     def view4(self, resize=0.5):
@@ -111,6 +139,7 @@ class videoCap(object):
         [out] 表示するインターバル画像を後ろから4枚連結したもの
         """
 
+        self._write_time = time.time()
         return I.cnv.resize(I.cnv.vhstack(self._data[0:4], (2, 2)), resize)
 
     def write4(self, out_path, resize=0.5):
