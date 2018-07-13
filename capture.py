@@ -13,6 +13,7 @@ logging.getLogger('Tools').setLevel(level=level)
 import cv2
 import time
 import argparse
+import numpy as np
 
 import Tools.func as F
 from Lib.video import videoCap
@@ -58,9 +59,10 @@ def main(args):
             print('exit!')
             break
         elif key == 13 or key == 10:  # Enter Key
-            print('capture:', cap.write4(args.out_path))
+            print('capture:', cap.writeBk4(args.out_path))
+            print('capture:', cap.writeFr4(args.out_path))
             if args.debug:
-                cv2.imshow('cap', cap.view4())
+                cv2.imshow('cap', np.vstack([cap.viewBk4(), cap.viewFr4()]))
 
     # 終了処理
     cap.release()

@@ -132,17 +132,36 @@ class videoCap(object):
 
         return I.cnv.resize(np.hstack([self._frame, sub_img]), resize)
 
-    def view4(self, resize=0.5):
+    def view(self, imgs, size, resize):
+        """
+        任意の画像を任意の行列で結合し任意のサイズで出力
+        [in]  imgs: 入力画像リスト
+        [in]  size: 結合したい行列情報
+        [in]  resize: リサイズの割合
+        [out] 結合してリサイズした画像
+        """
+
+        self._write_time = time.time()
+        return I.cnv.resize(I.cnv.vhstack(imgs, size), resize)
+
+    def viewBk4(self, resize=0.5):
         """
         インターバル画像の後ろから4枚を表示
         [in]  表示するリサイズ率
         [out] 表示するインターバル画像を後ろから4枚連結したもの
         """
 
-        self._write_time = time.time()
-        return I.cnv.resize(I.cnv.vhstack(self._data[0:4], (2, 2)), resize)
+        return self.view(self._data[0:4], (2, 2), resize)
 
-    def write4(self, out_path, resize=0.5):
+    def viewFr4(self, resize=0.5):
+        """
+        インターバル画像の前から4枚を表示
+        ※基本的にはviewBk4()と同じなので省略
+        """
+
+        return self.view(self._data[-5:-1], (2, 2), resize)
+
+    def writeBk4(self, out_path, resize=0.5):
         """
         インターバル画像の後ろから4枚を保存
         [in]  out_path: 保存先のフォルダ名
@@ -150,7 +169,15 @@ class videoCap(object):
         [out] 保存するパス
         """
 
-        return I.io.write(out_path, 'cap-', self.view4(resize))
+        return I.io.write(out_path, 'cap-B-', self.viewBk4(resize))
+
+    def writeFr4(self, out_path, resize=0.5):
+        """
+        インターバル画像の前から4枚を保存
+        ※基本的にはwriteBk4()と同じなので省略
+        """
+
+        return I.io.write(out_path, 'cap-F-', self.viewFr4(resize))
 
     def release(self):
         """
