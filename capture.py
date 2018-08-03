@@ -39,6 +39,7 @@ def command():
 
 
 def main(args):
+    # カメラの初期化
     cap = videoCap(args.channel, 1, args.lower,
                    args.stock_num, args.interval_time)
     while(True):
@@ -59,10 +60,12 @@ def main(args):
             print('exit!')
             break
         elif key == 13 or key == 10:  # Enter Key
-            print('capture:', cap.writeBk4(args.out_path))
-            print('capture:', cap.writeFr4(args.out_path))
+            bk = cap.writeBk4(args.out_path)
+            fr = cap.writeFr4(args.out_path)
+            print('capture:', bk)
+            print('capture:', fr)
             if args.debug:
-                cv2.imshow('cap', np.vstack([cap.viewBk4(), cap.viewFr4()]))
+                cv2.imshow('cap', np.vstack([bk, fr]))
 
     # 終了処理
     cap.release()
@@ -70,7 +73,6 @@ def main(args):
 
 
 if __name__ == '__main__':
-
     print('Key bindings')
     print('[Esc] Exit')
     print('[Ent] Capture')

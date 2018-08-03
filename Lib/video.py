@@ -18,10 +18,11 @@ class videoCap(object):
 
     def __init__(self, usb_ch, img_ch=3, lower=False, cap_num=6, interval=0.5):
         self._cap = cv2.VideoCapture(usb_ch)
+        # lowerがセットされた場合に、画像サイズとFPSを固定する
         if lower:
-            self._cap.set(3, 200)
-            self._cap.set(4, 200)
-            self._cap.set(5, 5)
+            self._cap.set(cv2.CAP_PROP_FRAME_WIDTH, 200)
+            self._cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 200)
+            self._cap.set(cv2.CV_CAP_PROP_FPS, 5)
             self.size = (144, 176, img_ch)
         else:
             self.size = (480, 640, img_ch)
@@ -45,6 +46,7 @@ class videoCap(object):
     def read(self):
         """
         USBカメラから画像を取得し、インターバルを確認する
+        [out] 画像取得判定
         """
 
         # USBカメラから画像を取得する
@@ -55,20 +57,23 @@ class videoCap(object):
         # フレーム情報の確保
         self._frame = frame
         self.frame_shape = frame.shape
+
         # インターバルが経過していれば、フレームを確保する
-        if self.intervalCheck():
-            self.update()
+        if self._intervalCheck():
+            self._update()
 
         return ret
 
     def frame(self, rate=1):
         """
         現在のフレームの取得
+        [in]  rate: 画像の拡大率
+        [out] 拡大率を変更した現在のフレーム
         """
 
         return I.cnv.resize(self._frame, rate)
 
-    def intervalCheck(self):
+    def _intervalCheck(self):
         """
         インターバル撮影の確認
         [out] Trueならインターバルの時間経過
@@ -80,7 +85,7 @@ class videoCap(object):
         else:
             return False
 
-    def update(self):
+    def _update(self):
         """
         インターバル画像のアップデート
         """
@@ -92,10 +97,19 @@ class videoCap(object):
 
         self._data.pop(0)
         self._data.append(img)
+        # タイマーリセット
         self._start = time.time()
 
-    # フレーム差分の計算
     def frame_sub(self, img1, img2, img3, th):
+        """
+        フレーム差分を計算し、画像を返す
+        [in]  img1: 比較するイメージ差分その1
+        [in]  img2: 比較するイメージ差分その2
+        [in]  img3: 比較するイメージ差分その3
+        [in]  th:   しきい値
+        [out] 計算した画像
+        """
+
         # フレームの絶対差分
         diff1 = cv2.absdiff(img1, img2)
         diff2 = cv2.absdiff(img2, img3)
@@ -113,13 +127,16 @@ class videoCap(object):
     def viewAll(self, resize=0.5):
         """
         インターバル画像をすべて表示
-        [in]  表示するリサイズ率
+        [in]  表示する拡大率
         [out] 現在のフレームと全インターバル画像を連結したもの
         """
 
+        # 画像を積み重ねてリサイズする
         sub_img = I.cnv.resize(I.cnv.vhstack(self._data, (2, -1)), 0.5)
+        # 画像をカラーに変換する
         sub_img = cv2.cvtColor(sub_img, cv2.COLOR_GRAY2RGB)
 
+        # 一定時間経過して、なおかつ画像に変化があった場合、DETECTと表示する
         wt = time.time() - self._write_time
         if wt > 10:
             moment = cv2.countNonZero(
@@ -130,6 +147,7 @@ class videoCap(object):
             if moment > 5000:
                 print('DETECT', moment)
 
+        # すべての画像を連結・リサイズして返す
         return I.cnv.resize(np.hstack([self._frame, sub_img]), resize)
 
     def view(self, imgs, size, resize):
