@@ -22,7 +22,7 @@ class videoCap(object):
         if lower:
             self._cap.set(cv2.CAP_PROP_FRAME_WIDTH, 200)
             self._cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 200)
-            self._cap.set(cv2.CV_CAP_PROP_FPS, 5)
+            self._cap.set(cv2.CAP_PROP_FPS, 5)
             self.size = (144, 176, img_ch)
         else:
             self.size = (480, 640, img_ch)
