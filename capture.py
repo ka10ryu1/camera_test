@@ -39,8 +39,12 @@ def command():
 
 
 def main(args):
+
+    if args.lower:
+        w, h, fps = 176, 144, 5
+
     # カメラの初期化
-    cap = videoCap(args.channel, 1, args.lower,
+    cap = videoCap(args.channel, 1, w, h, fps,
                    args.stock_num, args.interval_time)
     while(True):
         # カメラ画像の取得
