@@ -42,6 +42,8 @@ def main(args):
 
     if args.lower:
         w, h, fps = 176, 144, 5
+    else:
+        w, h, fps = 640, 480, 30
 
     # カメラの初期化
     cap = videoCap(args.channel, 1, w, h, fps,
